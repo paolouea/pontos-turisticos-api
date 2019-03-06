@@ -18,3 +18,9 @@ class PontoTuristico(models.Model):
 
     def __str__(self):
         return self.nome
+
+    # Metodo de regra de negocio que se comporta como campo do model
+    # Coloca nos fields da serializer com o mesmo nome do metodo aqui
+    @property
+    def exemplo_regra_neg(self):
+        return "Regra de Negocio de Dentro do Model: %s" % (self)
