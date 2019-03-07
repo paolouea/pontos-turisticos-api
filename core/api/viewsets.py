@@ -1,11 +1,13 @@
 from rest_framework import viewsets
 from core.models import PontoTuristico, DocIdentificacao
+from atracoes.models import Atracao
 from core.api.serializers import PontoTuristicoSerializer, DocIdentificacaoSerializer
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.response import Response
+
 
 class DocIdentificacaoViewSet(viewsets.ModelViewSet):
     """
@@ -77,11 +79,11 @@ class PontoTuristicosViewSet(viewsets.ModelViewSet):
 
     @action(methods=["POST"], detail=True)
     def associa_atracao_ponto(self, request, pk):
-        atracoes = request.data["ids"]
+        id_atracoes = request.data["ids"]
         ponto = PontoTuristico.objects.get(pk=pk)
-        # TODO - Pegar as atracoes ja existentes e adicionar as novas
-        # Atualmente esta descartando as associacoes anteriores e setando
-        # somente a nova
-        ponto.atracoes.set(atracoes)
+
+        for id in id_atracoes:
+            ponto.atracoes.add(Atracao.objects.get(pk=id))
+
         ponto.save()
         return Response("ok")
