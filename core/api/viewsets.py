@@ -1,11 +1,17 @@
 from rest_framework import viewsets
-from core.models import PontoTuristico
-from core.api.serializers import PontoTuristicoSerializer
+from core.models import PontoTuristico, DocIdentificacao
+from core.api.serializers import PontoTuristicoSerializer, DocIdentificacaoSerializer
 from rest_framework.decorators import action
 from rest_framework.filters import SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authentication import TokenAuthentication
 
+class DocIdentificacaoViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet for DocIdentificacao
+    """
+    serializer_class = DocIdentificacaoSerializer
+    queryset = DocIdentificacao.objects.all()
 
 class PontoTuristicosViewSet(viewsets.ModelViewSet):
     """
