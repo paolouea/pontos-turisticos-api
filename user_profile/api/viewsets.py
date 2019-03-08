@@ -15,6 +15,7 @@ class UserProfileViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         user = User()
         user_profile = UserProfile()
+        upline_user = User()
 
         # Pega os dados enviados no post
         user.username = self.request.data["username"]
@@ -24,17 +25,35 @@ class UserProfileViewSet(ModelViewSet):
         user_profile.estado = self.request.data["estado"]
         upline = self.request.data["upline"]
 
-        user = User.objects.create_user(username=user.username,
-                                        email=user.email, password=user.password)
+        # Verifica se upline existe na base
+        try:
+            upline_user = User.objects.get_by_natural_key(upline)
 
-        upline_user = User.objects.get_by_natural_key(upline)
-        user_profile.user = user
+        except User.DoesNotExist:
+            return Response("Upline não existe", status=status.HTTP_404_NOT_FOUND)
+
         user_profile.upline = upline_user.username
-        user_profile.save()
 
-        serializer = UserProfileSerializer(user_profile)
+        # verifica se email já foi cadastrado na base
+        try:
+            user = User.objects.get(email=user.email)
+            return Response("Email em uso. Escolha outro!",
+                            status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            try:
+                user = User.objects.get(username=user.username)
+                return Response("username em uso. Escolha outro!",
+                                status=status.HTTP_400_BAD_REQUEST)
+            except User.DoesNotExist:
+                user = User.objects.create_user(username=user.username,
+                                                email=user.email, password=user.password)
+                user_profile.user = user
+                user_profile.save()
+                serializer = UserProfileSerializer(user_profile)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
 
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
 
 
 
