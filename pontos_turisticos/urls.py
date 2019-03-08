@@ -23,6 +23,7 @@ from atracoes.api.viewsets import AtracaoViewSet
 from enderecos.api.viewsets import EnderecoViewSet
 from comentarios.api.viewsets import ComentarioViewSet
 from avaliacoes.api.viewsets import AvaliacaoViewSet
+from user_profile.api.viewsets import UserProfileViewSet
 from core.models import PontoTuristico
 from rest_framework.authtoken.views import obtain_auth_token
 
@@ -33,6 +34,7 @@ router.register(r'enderecos', EnderecoViewSet)
 router.register(r'comentarios', ComentarioViewSet)
 router.register(r'avaliacoes', AvaliacaoViewSet)
 router.register(r'doc-id', DocIdentificacaoViewSet)
+router.register(r'usuarios', UserProfileViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
