@@ -12,6 +12,10 @@ class UserProfileViewSet(ModelViewSet):
     serializer_class = UserProfileSerializer
     queryset = UserProfile.objects.all()
 
+    # Metodo cria o usuário, o perfil do usuário e guarda
+    # quem indicou o usuário para o sistema. Valida email único,
+    # username unico e garante que quem indicou seja usuário
+    # registrado na base, ou nem permite o cadastro.
     def create(self, request, *args, **kwargs):
         user = User()
         user_profile = UserProfile()
