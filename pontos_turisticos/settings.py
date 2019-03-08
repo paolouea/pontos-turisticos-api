@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'comentarios',
     'avaliacoes',
     'enderecos',
+    'user_profile',
 ]
 
 REST_FRAMEWORK = {
