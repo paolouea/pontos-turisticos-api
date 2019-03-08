@@ -38,12 +38,13 @@ class UserProfileViewSet(ModelViewSet):
 
         user_profile.upline = upline_user.username
 
-        # verifica se email já foi cadastrado na base
+        # Valida se email já foi cadastrado na base
         try:
             user = User.objects.get(email=user.email)
             return Response("Email em uso. Escolha outro!",
                             status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
+            # Valida se username já existe na base
             try:
                 user = User.objects.get(username=user.username)
                 return Response("username em uso. Escolha outro!",
