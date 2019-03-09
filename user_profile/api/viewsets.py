@@ -71,6 +71,13 @@ class UserProfileViewSet(ModelViewSet):
     # para acessar localhost:8000/pontosturisticos/1/denunciar
     @action(methods=['GET'], detail=True)
     def show_first_line(self, request, pk=None):
+        """
+        Mostra os Indicados diretos da rede para um dado Nó
+        :param request:
+        :param pk:
+        :return: Response with Serialized JSON
+        """
+
         try:
             profiles = UserProfileManager.get_direct_downlines(pk=pk)
         except BusinessException as be:
@@ -80,14 +87,32 @@ class UserProfileViewSet(ModelViewSet):
 
     @action(methods=['GET'], detail=True)
     def show_all_lines(self, request, pk=None):
-        levels = int(self.request.query_params.get("levels"))
-        # try:
-        #     profiles = UserProfileManager.get_direct_downlines(pk=pk)
-        # except BusinessException as be:
-        #     return Response(be.message, status.HTTP_404_NOT_FOUND)
-        # serializer = UserProfileSerializer(profiles, many=True)
-        # return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(levels)
+        """
+        Mostra todas as linhas da rede a partir de um nó dado
+        :param request:
+        :param pk:
+        :return: Response - Serialized JSON
+        """
+        #levels = int(self.request.query_params.get("levels"))
+
+        try:
+            profiles = UserProfileManager.get_direct_downlines(pk=pk)
+
+        except BusinessException as be:
+            return Response(be.message, status.HTTP_404_NOT_FOUND)
+
+        for profile in profiles:
+            try:
+                new_qs = UserProfileManager.get_direct_downlines(pk=profile.id)
+                profiles = profiles.union(new_qs, all=False)
+            except BusinessException:
+                pass
+
+
+        serializer = UserProfileSerializer(profiles, many=True)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 
 
