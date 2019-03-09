@@ -1,9 +1,14 @@
 from rest_framework.viewsets import ModelViewSet
 from ..models import UserProfile
-from .serializers import UserProfileSerializer
+from .serializers import UserProfileSerializer, UserSerializer
 from django.contrib.auth.models import User
 from rest_framework.response import Response
+from rest_framework.decorators import action
 from rest_framework import status
+from rest_framework.filters import SearchFilter
+from user_profile.business.managers import UserProfileManager, BusinessException
+
+
 
 class UserProfileViewSet(ModelViewSet):
     """
@@ -11,6 +16,9 @@ class UserProfileViewSet(ModelViewSet):
     """
     serializer_class = UserProfileSerializer
     queryset = UserProfile.objects.all()
+    filter_backends = (SearchFilter,)
+    filterset_fields = ('upline', )
+
 
     # Metodo cria o usuário, o perfil do usuário e guarda
     # quem indicou o usuário para o sistema. Valida email único,
@@ -58,6 +66,28 @@ class UserProfileViewSet(ModelViewSet):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
+    # Actions personalizadas quando os elementos do crud não cobrem
+    # methods lista de metodos e detail= se acessa o endpoint ou recurso dele
+    # para acessar localhost:8000/pontosturisticos/1/denunciar
+    @action(methods=['GET'], detail=True)
+    def show_first_line(self, request, pk=None):
+        try:
+            profiles = UserProfileManager.get_direct_downlines(pk=pk)
+        except BusinessException as be:
+            return Response(be.message, status.HTTP_404_NOT_FOUND)
+        serializer = UserProfileSerializer(profiles, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(methods=['GET'], detail=True)
+    def show_all_lines(self, request, pk=None):
+        levels = int(self.request.query_params.get("levels"))
+        # try:
+        #     profiles = UserProfileManager.get_direct_downlines(pk=pk)
+        # except BusinessException as be:
+        #     return Response(be.message, status.HTTP_404_NOT_FOUND)
+        # serializer = UserProfileSerializer(profiles, many=True)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(levels)
 
 
 
